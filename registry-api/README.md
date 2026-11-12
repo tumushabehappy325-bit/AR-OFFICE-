@@ -1,4 +1,4 @@
-# Registry API: Transcript Request and Document Verification
+# Registry API: Transcript Request and Document Verification.
 
 SWE2106 Internet Technologies and Web Design, Etivity 5.
 A REST API for the Academic Registrar at Mbarara University of Science and Technology. Students request transcripts, registry staff review and issue them, and anyone can verify a document using its serial number.
