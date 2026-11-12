@@ -139,22 +139,7 @@
           <div class="form-actions"><button class="btn" type="submit">Log in</button></div>
           <div id="loginMsg"></div>
         </form>
-        <div class="demo">
-          <p>Demo accounts (click to fill in):</p>
-          <div class="actions">
-            <button type="button" class="btn secondary small" data-fill="2021/BSE/045|Student@123">Student</button>
-            <button type="button" class="btn secondary small" data-fill="2021/BIT/012|Student@123">Student 2</button>
-            <button type="button" class="btn secondary small" data-fill="officer@must.ac.ug|Staff@123">Registry officer</button>
-            <button type="button" class="btn secondary small" data-fill="registrar@must.ac.ug|Admin@123">Registrar</button>
-          </div>
-        </div>
       </section>`;
-
-    app.querySelectorAll('[data-fill]').forEach((b) => b.addEventListener('click', () => {
-      const [u, p] = b.dataset.fill.split('|');
-      document.getElementById('username').value = u;
-      document.getElementById('password').value = p;
-    }));
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();

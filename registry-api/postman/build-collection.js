@@ -43,7 +43,7 @@ const collection = {
     description:
       'SWE2106 Etivity 5. Test collection for the MUST Academic Registrar transcript request and document verification API.\n\n' +
       'HOW TO USE\n1. Start the server (npm start).\n2. Run the folders in order (or use the Collection Runner). Tokens and ids are saved automatically as collection variables.\n3. Change the baseUrl variable if the API is deployed.\n\n' +
-      'SAMPLE ACCOUNTS\nStudent: 2021/BSE/045 / Student@123\nStudent 2: 2021/BIT/012 / Student@123\nStaff: officer@must.ac.ug / Staff@123\nAdmin: registrar@must.ac.ug / Admin@123',
+      'SAMPLE ACCOUNTS\nStudent: 2021/BSE/045 / Student@123\nStudent 2: 2021/BIT/012 / bit2024\nStaff: officer@must.ac.ug / Staff@123\nAdmin: registrar@must.ac.ug / Admin@123',
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
   },
   variable: [
@@ -73,7 +73,7 @@ const collection = {
             save('studentToken', 'pm.response.json().data.token')],
         }),
         item('Login second student (valid)', 'POST', '/api/auth/login', {
-          body: { username: '2021/BIT/012', password: 'Student@123' },
+          body: { username: '2021/BIT/012', password: 'bit2024' },
           description: 'Used later to prove one student cannot see another student\'s request. Saves student2Token.',
           tests: [status(200), save('student2Token', 'pm.response.json().data.token')],
         }),
