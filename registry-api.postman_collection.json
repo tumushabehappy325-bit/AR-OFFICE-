@@ -492,11 +492,11 @@
           "event": [
             {
               "listen": "test",
-              "script": {
+              "script":  {
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status code is 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Error code is VALIDATION_ERROR\", () => pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_ERROR\"));"
+                  "pm.test(\"Error code is VALIDATION_ERROR_TRY_AGAIN\", () => pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_ERROR_TRY_AGAIN\"));"
                 ]
               }
             }
