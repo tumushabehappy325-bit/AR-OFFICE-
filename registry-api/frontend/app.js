@@ -5,7 +5,7 @@
   const app = document.getElementById('app');
   const nav = document.getElementById('nav');
 
-  // ---------- Session ----------
+  // Keep the signed-in user and token for this browser tab.
   const store = {
     get(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } },
     set(key, val) { try { sessionStorage.setItem(key, val); } catch (e) { /* ignore */ } },
@@ -25,7 +25,7 @@
     store.del('token'); store.del('user');
   }
 
-  // ---------- Helpers ----------
+  // Labels and formatting helpers used by the page templates.
   const DOC_LABELS = {
     official_transcript: 'Official transcript',
     certificate_copy: 'Certificate copy',
@@ -58,6 +58,7 @@
     const headers = {};
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (auth && state.token) headers.Authorization = 'Bearer ' + state.token;
+    // Send same-origin requests so the frontend and API share the deployed host.
     let res;
     try {
       res = await fetch('/api' + path, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
@@ -83,7 +84,7 @@
     return json;
   }
 
-  // ---------- Navigation ----------
+  // Rebuild navigation after route changes or login state changes.
   function renderNav(route) {
     const link = (href, label, key) =>
       `<a href="${href}" class="${route === key ? 'active' : ''}"${route === key ? ' aria-current="page"' : ''}>${label}</a>`;
@@ -101,7 +102,7 @@
     if (logout) logout.addEventListener('click', () => { clearSession(); location.hash = '#/'; render(); });
   }
 
-  // ---------- Views ----------
+  // Each view replaces the main content and wires up its own interactions.
   function viewHome() {
     app.innerHTML = `
       <section class="hero">
@@ -195,6 +196,7 @@
         </section>
       </div>`;
 
+    // Refresh the signed-in student's request history from the API.
     async function loadList() {
       const box = document.getElementById('reqList');
       try {
@@ -269,6 +271,7 @@
     const msg = document.getElementById('staffMsg');
     const filter = document.getElementById('statusFilter');
 
+    // Apply the selected status filter when loading the registry queue.
     async function loadRequests() {
       const box = document.getElementById('staffList');
       try {
@@ -306,6 +309,7 @@
       } catch (err) { box.innerHTML = errorBox(err); }
     }
 
+    // Show issued serials so staff can copy or open the public verification page.
     async function loadDocuments() {
       const box = document.getElementById('docList');
       try {
@@ -378,6 +382,7 @@
 
     const out = document.getElementById('verifyResult');
 
+    // Verification is public; the API returns only the details needed to confirm a record.
     async function check(serial) {
       out.innerHTML = '<p class="empty">Checking...</p>';
       try {
@@ -414,7 +419,7 @@
     if (prefill) check(prefill);
   }
 
-  // ---------- Router ----------
+  // Use the URL hash for lightweight navigation without a frontend framework.
   function render() {
     const hash = location.hash || '#/';
     const parts = hash.replace(/^#\/?/, '').split('/');

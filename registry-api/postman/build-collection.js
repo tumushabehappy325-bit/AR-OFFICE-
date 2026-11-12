@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// Build one reusable request definition with optional auth, body, query, and checks.
 const item = (name, method, urlPath, { token, body, tests = [], description = '', query } = {}) => {
   const header = [];
   if (body !== undefined) header.push({ key: 'Content-Type', value: 'application/json' });
@@ -37,6 +38,7 @@ const save = (variable, expr) => `pm.collectionVariables.set("${variable}", ${ex
 
 const validRequest = { documentType: 'official_transcript', deliveryMethod: 'pickup', reason: 'Needed for a job application' };
 
+// Keep the collection in workflow order so the runner can reuse saved tokens and ids.
 const collection = {
   info: {
     name: 'Registry API: Transcript Request and Document Verification',
@@ -250,5 +252,6 @@ const collection = {
 };
 
 const out = path.join(__dirname, 'registry-api.postman_collection.json');
+// Regenerate the checked-in collection from this source file after editing requests.
 fs.writeFileSync(out, JSON.stringify(collection, null, 2));
 console.log('Wrote', out);

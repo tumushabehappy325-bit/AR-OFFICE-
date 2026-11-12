@@ -9,7 +9,7 @@ const { generateSerial } = require('../utils/serial');
 
 const now = () => new Date().toISOString();
 
-// ---------- Sample data ----------
+// Copy seed users so in-memory operations do not modify the shared seed objects.
 const users = require('./seed').map((u) => ({ ...u }));
 
 const requests = [];  // transcript / certificate requests
@@ -61,6 +61,7 @@ async function updateRequest(id, changes) {
 
 // ---------- Documents ----------
 async function issueDocumentForRequest(requestId, issuedBy) {
+  // Match the PostgreSQL store's state checks and return statuses.
   const request = requests.find((r) => r.id === requestId);
   if (!request) return { status: 'not_found' };
   if (request.status === 'ready') return { status: 'already_issued', serial: request.documentSerial };
@@ -68,6 +69,7 @@ async function issueDocumentForRequest(requestId, issuedBy) {
   const student = users.find((u) => u.id === request.studentId);
   if (!student) return { status: 'student_not_found' };
 
+  // Serial collisions are unlikely, but still check before saving.
   let serial;
   do { serial = generateSerial(); } while (documents.some((d) => d.serial === serial));
   const doc = {

@@ -9,6 +9,7 @@ const { randomUUID } = require('crypto');
 const seed = require('./seed');
 const { generateSerial } = require('../utils/serial');
 
+// Convert database timestamps and snake_case columns to the API's JSON field names.
 const iso = (v) => (v ? new Date(v).toISOString() : null);
 
 const toUser = (r) => r && ({
@@ -33,10 +34,12 @@ const REQUEST_COLUMNS = {
 };
 
 function createPgStore(pool) {
+  // Small query helpers keep the store methods focused on their data operation.
   const one = async (sql, params) => (await pool.query(sql, params)).rows[0] || null;
   const many = async (sql, params) => (await pool.query(sql, params)).rows;
 
   async function init() {
+    // Create the tables on first use; IF NOT EXISTS keeps startup repeatable.
     await pool.query(`CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
@@ -75,6 +78,7 @@ function createPgStore(pool) {
       issued_by TEXT NOT NULL,
       issued_at TIMESTAMPTZ NOT NULL
     )`);
+    // Seed sample accounts only for a new, empty database.
     const existing = await one('SELECT COUNT(*) AS n FROM users');
     if (Number(existing.n) === 0) {
       for (const u of seed) {
@@ -119,6 +123,7 @@ function createPgStore(pool) {
     ));
 
   async function updateRequest(id, changes) {
+    // Only known columns can be updated, preventing caller-controlled SQL identifiers.
     const sets = [];
     const params = [];
     for (const [key, value] of Object.entries(changes)) {
@@ -137,6 +142,7 @@ function createPgStore(pool) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      // Lock this request so two staff members cannot issue two documents at once.
       const request = (await client.query('SELECT * FROM requests WHERE id = $1 FOR UPDATE', [requestId])).rows[0];
       if (!request) {
         await client.query('ROLLBACK');
@@ -157,6 +163,7 @@ function createPgStore(pool) {
         return { status: 'student_not_found' };
       }
 
+      // Retry if the random serial collides with an existing unique serial.
       let row;
       while (!row) {
         const serial = generateSerial();

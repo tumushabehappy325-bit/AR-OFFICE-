@@ -6,11 +6,13 @@ const HttpError = require('../utils/httpError');
 const { createRequestSchema, idParamSchema, listQuerySchema, reviewSchema } = require('../schemas');
 
 const router = express.Router();
+// All request endpoints require a valid login; role checks narrow access per action.
 router.use(authenticate);
 
 // POST /api/requests  (student) - submit a new request
 router.post('/', requireRole('student'), validate(createRequestSchema), async (req, res, next) => {
   try {
+    // Prevent duplicate requests while an earlier request is awaiting review.
     const duplicate = await store.findOpenDuplicate(req.user.id, req.body.documentType);
     if (duplicate) {
       throw new HttpError(409, 'DUPLICATE_REQUEST', 'You already have a pending request for this document type.');
@@ -58,6 +60,7 @@ router.get('/:id', validate(idParamSchema, 'params'), async (req, res, next) => 
 router.patch('/:id/status', requireRole('staff', 'admin'),
   validate(idParamSchema, 'params'), validate(reviewSchema), async (req, res, next) => {
   try {
+    // Only pending requests may be reviewed; issuance is a separate action.
     const request = await store.findRequestById(req.params.id);
     if (!request) throw new HttpError(404, 'REQUEST_NOT_FOUND', 'No request found with that id.');
     if (request.status !== 'pending') {

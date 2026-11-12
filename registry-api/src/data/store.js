@@ -9,6 +9,7 @@ const config = require('../config');
 const createPgStore = require('./pgStore');
 
 let store;
+// Use Neon/PostgreSQL when configured; otherwise select the local or test store.
 if (config.databaseUrl) {
   const { Pool } = require('pg');
   const local = /localhost|127\.0\.0\.1/.test(config.databaseUrl);

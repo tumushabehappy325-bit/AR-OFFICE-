@@ -26,7 +26,7 @@ async function authenticate(req, res, next) {
   }
 }
 
-// Allows only the listed roles, e.g. requireRole('staff', 'admin')
+// Allows only the listed roles, for example requireRole('staff', 'admin').
 const requireRole = (...roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) {
     return next(new HttpError(403, 'FORBIDDEN', `This action requires one of these roles: ${roles.join(', ')}.`));

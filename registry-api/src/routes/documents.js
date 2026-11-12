@@ -11,6 +11,7 @@ router.use(authenticate, requireRole('staff', 'admin'));
 // POST /api/documents  (staff, admin) - issue a document for an approved request
 router.post('/', validate(issueDocumentSchema), async (req, res, next) => {
   try {
+    // The store creates the serial and marks the request ready as one operation.
     const result = await store.issueDocumentForRequest(req.body.requestId, req.user.name);
     if (result.status === 'not_found') throw new HttpError(404, 'REQUEST_NOT_FOUND', 'No request found with that id.');
     if (result.status === 'already_issued') {

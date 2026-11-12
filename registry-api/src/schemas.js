@@ -1,6 +1,7 @@
 const { z } = require('zod');
 const { SERIAL_REGEX } = require('./utils/serial');
 
+// Shared allowed values keep validation and UI/API behavior in sync.
 const DOCUMENT_TYPES = ['official_transcript', 'certificate_copy', 'verification_letter'];
 const DELIVERY_METHODS = ['pickup', 'email', 'courier'];
 const STATUSES = ['pending', 'approved', 'rejected', 'ready'];
@@ -26,6 +27,7 @@ const reviewSchema = z.object({
   status: z.enum(['approved', 'rejected'], { errorMap: () => ({ message: 'status must be either approved or rejected' }) }),
   reason: z.string().trim().max(200, 'reason must be at most 200 characters').optional(),
 }).refine((d) => d.status !== 'rejected' || (d.reason && d.reason.length >= 3), {
+  // Rejections must include a short explanation for the student.
   path: ['reason'],
   message: 'A reason is required when rejecting a request',
 });

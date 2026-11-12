@@ -24,6 +24,7 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
       : password === storedPassword);
     if (!ok) throw new HttpError(401, 'INVALID_CREDENTIALS', 'Incorrect username or password.');
 
+    // Store only the user id and role in the signed token; load current user data per request.
     const token = jwt.sign({ sub: user.id, role: user.role }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
     res.json({
       success: true,

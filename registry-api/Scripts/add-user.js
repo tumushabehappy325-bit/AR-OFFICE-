@@ -17,6 +17,7 @@ const { randomUUID } = require('crypto');
 
 const ROLES = ['student', 'staff', 'admin'];
 
+// Validate account details and store only a bcrypt password hash.
 async function addUser(pool, { username, name, role, password, program, graduationYear }) {
   if (!username || !name || !role || !password) throw new Error('username, name, role and password are all required.');
   if (!ROLES.includes(role)) throw new Error(`role must be one of: ${ROLES.join(', ')} (lowercase).`);
@@ -48,6 +49,7 @@ async function resetPassword(pool, username, password) {
 }
 
 async function main() {
+  // Parse the command line before opening the database connection.
   const [command, ...args] = process.argv.slice(2);
   if (!process.env.DATABASE_URL) {
     console.error('DATABASE_URL is empty in .env. This script only works with the live database.');
