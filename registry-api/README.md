@@ -6,10 +6,10 @@ The system supports transcript and other academic-document requests. Students su
 
 ## Project team
 
-Replace the example row with the team members' details. Add one row for each member.
-
-| Full name            | Registration number 
-TUMUSHABE HAPPY          2025/BSE/005
+| Full name | Registration number |
+|---|---|
+| Tumushabe Happy | 2025/BSE/005 |
+| Murungi Alex Mugabe | TBD |
 
 ## Main functions
 
@@ -83,6 +83,20 @@ For automatic restarts during development:
 npm run dev
 ```
 
+## Environment variables
+
+Copy `.env.example` to `.env` and adjust the values for your environment. Never commit `.env`.
+
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `PORT` | No | `3000` | Port the Express server listens on |
+| `JWT_SECRET` | Yes in production | `dev-secret-change-me` | Secret used to sign and verify JWTs. Use a long, random, private value. Changing it invalidates existing tokens. |
+| `JWT_EXPIRES_IN` | No | `2h` | How long an issued token remains valid |
+| `DATABASE_URL` | No | empty | PostgreSQL connection string. Leave empty to use the in-memory store. |
+| `USE_PGMEM` | No | unset | Test-only. Set to `true` to use an in-memory PostgreSQL implementation. |
+
+When `DATABASE_URL` is empty, the application uses in-memory data that is lost on restart. Provide a Neon connection string (including the SSL settings Neon gives you) to persist data.
+
 ## Adding or resetting a user
 
 The script uses `DATABASE_URL` from `.env`. New passwords must be at least eight characters and are stored as bcrypt hashes.
@@ -145,6 +159,20 @@ npm run test:api
 ```
 
 The collection uses the sample credentials defined for the project. If the connected database contains different user records or passwords, update the collection's login requests to match that database.
+
+## Troubleshooting
+
+| Problem | Likely cause and fix |
+|---|---|
+| Data disappears after restarting the server | `DATABASE_URL` is empty, so the in-memory store is used. Set it to a PostgreSQL connection string to persist data. |
+| `Could not start. Database setup failed:` | The database is unreachable or `DATABASE_URL` is malformed. Check the connection string and include the SSL options Neon requires. |
+| `EADDRINUSE` when starting | Another process is using the configured port. Stop it or set a different `PORT` in `.env`. |
+| `401 Missing or malformed Authorization header` | Protected requests need `Authorization: Bearer <token>`. Log in again and copy the returned token. |
+| `401 Token is invalid or has expired` | Log in again. If `JWT_SECRET` changed, all previously issued tokens are invalid. |
+| `403 FORBIDDEN` | The signed-in account does not have the required role. Use a student, staff, or administrator account as appropriate. |
+| `npm run test:api` cannot connect | Start the API first, then run `npm install` so Newman is available and confirm the collection's sample credentials match your database. |
+| Login works but no sample data appears | The in-memory store starts from its seed data. Add users with `Scripts/add-user.js` or connect a populated PostgreSQL database. |
+| `.env` values are ignored | Run the commands from the `registry-api` directory so `dotenv` can find `.env`, and confirm the file is named `.env`, not `.env.txt`. |
 
 ## Project structure
 
