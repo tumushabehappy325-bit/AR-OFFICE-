@@ -262,7 +262,11 @@
         <div id="staffList"><p class="empty">Loading...</p></div>
       </section>
       <section class="card">
-        <h2>Issued documents</h2>
+        <div class="bar" style="padding:0;margin-bottom:.5rem">
+          <h2 style="margin:0">Issued documents</h2>
+          <button class="btn secondary small" id="exportDocs" type="button">Export CSV</button>
+        </div>
+        <div id="docMsg"></div>
         <div id="docList"><p class="empty">Loading...</p></div>
       </section>`;
 
@@ -356,6 +360,39 @@
         msg.innerHTML = errorBox(err);
         btn.disabled = false;
       }
+    });
+
+    document.getElementById('exportDocs').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const out = document.getElementById('docMsg');
+      btn.disabled = true;
+      out.innerHTML = '';
+      try {
+        const res = await fetch('/api/documents/export', {
+          headers: { Authorization: 'Bearer ' + state.token },
+        });
+        if (res.status === 401) { clearSession(); location.hash = '#/login'; return; }
+        if (!res.ok) {
+          let json = {};
+          try { json = await res.json(); } catch (err) { /* no body */ }
+          const error = new Error((json.error && json.error.message) || 'Export failed');
+          error.details = json.error && json.error.details;
+          throw error;
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'registry-documents.csv';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        out.innerHTML = successBox('Document list exported.');
+      } catch (err) {
+        out.innerHTML = errorBox(err);
+      }
+      btn.disabled = false;
     });
 
     filter.addEventListener('change', loadRequests);
