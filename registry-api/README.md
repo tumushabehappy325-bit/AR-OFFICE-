@@ -120,9 +120,12 @@ Avoid sharing passwords or placing real credentials in project documentation.
 | PATCH | `/api/requests/:id/status` | Staff, administrator | Approve or reject a pending request |
 | POST | `/api/documents` | Staff, administrator | Record issuance for an approved request |
 | GET | `/api/documents` | Staff, administrator | List issued-document records |
+| GET | `/api/documents/export` | Staff, administrator | Download issued-document records as a CSV file |
 | GET | `/api/verify/:serial` | Public | Verify an issued-document record |
 
 Protected endpoints require `Authorization: Bearer <token>`.
+
+Staff and administrators can download the issued-document list from the registry desk. The CSV file includes the serial number, student name, registration number, programme, graduation year, document type, issuer, and issue date.
 
 ## Validation and status rules
 
