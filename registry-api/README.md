@@ -8,8 +8,10 @@ The system supports transcript and other academic-document requests. Students su
 
 Replace the example row with the team members' details. Add one row for each member.
 
-| Full name            | Registration number 
-TUMUSHABE HAPPY          2025/BSE/005
+| Full name | Registration number |
+|---|---|
+| TUMUSHABE HAPPY | 2025/BSE/005 |
+| MURUNGI ALEX MUGABE | 2025/BSE/114/ps |
 
 ## Main functions
 
