@@ -19,6 +19,7 @@ router.post('/', requireRole('student'), validate(createRequestSchema), async (r
       studentId: req.user.id,
       studentName: req.user.name,
       registrationNumber: req.user.username,
+      copies: 1, // Retained for compatibility with existing database rows/schema.
       ...req.body,
     });
     res.status(201).json({ success: true, data: request });

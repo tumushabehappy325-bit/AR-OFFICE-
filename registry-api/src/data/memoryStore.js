@@ -5,6 +5,7 @@
  * Data resets whenever the server restarts. See pgStore.js for the live database version.
  */
 const { randomUUID } = require('crypto');
+const { generateSerial } = require('../utils/serial');
 
 const now = () => new Date().toISOString();
 
@@ -59,10 +60,24 @@ async function updateRequest(id, changes) {
 }
 
 // ---------- Documents ----------
-async function createDocument(data) {
-  const doc = { id: randomUUID(), ...data, issuedAt: now() };
+async function issueDocumentForRequest(requestId, issuedBy) {
+  const request = requests.find((r) => r.id === requestId);
+  if (!request) return { status: 'not_found' };
+  if (request.status === 'ready') return { status: 'already_issued', serial: request.documentSerial };
+  if (request.status !== 'approved') return { status: 'not_approved', requestStatus: request.status };
+  const student = users.find((u) => u.id === request.studentId);
+  if (!student) return { status: 'student_not_found' };
+
+  let serial;
+  do { serial = generateSerial(); } while (documents.some((d) => d.serial === serial));
+  const doc = {
+    id: randomUUID(), serial, requestId: request.id, studentId: student.id, studentName: student.name,
+    registrationNumber: student.username, program: student.program, graduationYear: student.graduationYear,
+    documentType: request.documentType, issuedBy, issuedAt: now(),
+  };
   documents.push(doc);
-  return doc;
+  Object.assign(request, { status: 'ready', documentSerial: serial, updatedAt: now() });
+  return { status: 'issued', document: doc };
 }
 async function findDocumentBySerial(serial) {
   return documents.find((d) => d.serial === serial) || null;
@@ -77,5 +92,5 @@ module.exports = {
   mode: 'memory', init,
   findUserByUsername, findUserById,
   createRequest, findRequestById, listRequests, findOpenDuplicate, updateRequest,
-  createDocument, findDocumentBySerial, listDocuments,
+  issueDocumentForRequest, findDocumentBySerial, listDocuments,
 };

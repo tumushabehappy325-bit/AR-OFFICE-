@@ -105,11 +105,15 @@
   function viewHome() {
     app.innerHTML = `
       <section class="hero">
-        <h1>Transcripts and document verification</h1>
-        <p>Request your official transcript online and track it from submission to collection. Employers can confirm that a document is genuine in seconds.</p>
-        <div class="actions">
-          <a class="btn" href="#/login">Log in to request</a>
-          <a class="btn secondary" href="#/verify">Verify a document</a>
+        <div class="hero-content">
+          <img class="hero-logo" src="/images/Logo.png" alt="Mbarara University of Science and Technology crest">
+          <p class="eyebrow">Mbarara University of Science and Technology</p>
+          <h1>Trusted academic records, verified with confidence</h1>
+          <p>Request your official transcript online, follow its progress, and let employers confirm an issued document using its serial number.</p>
+          <div class="actions">
+            <a class="btn" href="#/login">Log in to request</a>
+            <a class="btn secondary" href="#/verify">Verify a document</a>
+          </div>
         </div>
       </section>
       <div class="grid-2">
@@ -175,9 +179,6 @@
             <select id="documentType" name="documentType">
               ${Object.entries(DOC_LABELS).map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
             </select>
-            <label for="copies">Number of copies</label>
-            <input id="copies" name="copies" type="number" min="1" max="5" value="1">
-            <div class="hint">Between 1 and 5.</div>
             <label for="deliveryMethod">Delivery</label>
             <select id="deliveryMethod" name="deliveryMethod">
               ${Object.entries(DELIVERY_LABELS).map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
@@ -204,7 +205,7 @@
           <tbody>${res.data.map((r) => `
             <tr>
               <td>${esc(DOC_LABELS[r.documentType] || r.documentType)}
-                <small>${esc(r.copies)} copy(ies), ${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
+                <small>${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
               <td>${badge(r.status)}</td>
               <td>${r.status === 'rejected' ? `Reason: ${esc(r.rejectionReason)}`
                 : r.status === 'ready' ? `Serial: <a class="serial" href="#/verify/${esc(r.documentSerial)}">${esc(r.documentSerial)}</a>`
@@ -225,7 +226,6 @@
           method: 'POST',
           body: {
             documentType: e.target.elements.documentType.value,
-            copies: e.target.elements.copies.value === '' ? undefined : Number(e.target.elements.copies.value),
             deliveryMethod: e.target.elements.deliveryMethod.value,
             reason: e.target.elements.reason.value,
           },
@@ -253,7 +253,7 @@
           <div>
             <label for="statusFilter" class="hint" style="display:inline;margin-right:.4rem">Show</label>
             <select id="statusFilter" style="width:auto;display:inline-block">
-              <option value="">All</option><option value="pending" selected>Pending</option>
+              <option value="" selected>All</option><option value="pending">Pending</option>
               <option value="approved">Approved</option><option value="ready">Ready</option><option value="rejected">Rejected</option>
             </select>
           </div>
@@ -281,7 +281,7 @@
             <tr>
               <td>${esc(r.studentName)}<small>${esc(r.registrationNumber)}</small></td>
               <td>${esc(DOC_LABELS[r.documentType] || r.documentType)}
-                <small>${esc(r.copies)} copy(ies), ${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
+                <small>${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
               <td>${esc(r.reason)}</td>
               <td>${badge(r.status)}${r.status === 'rejected' ? `<small>${esc(r.rejectionReason)}</small>` : ''}</td>
               <td>${r.status === 'pending'
@@ -342,6 +342,7 @@
       try {
         if (act === 'approve') {
           await api(`/requests/${id}/status`, { method: 'PATCH', body: { status: 'approved' } });
+          filter.value = 'approved';
           msg.innerHTML = successBox('Request approved. You can now issue the document.');
         } else if (act === 'reject-confirm') {
           const reason = box.querySelector('input').value;

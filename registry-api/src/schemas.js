@@ -12,8 +12,6 @@ const loginSchema = z.object({
 
 const createRequestSchema = z.object({
   documentType: z.enum(DOCUMENT_TYPES, { errorMap: () => ({ message: `documentType must be one of: ${DOCUMENT_TYPES.join(', ')}` }) }),
-  copies: z.number({ required_error: 'copies is required', invalid_type_error: 'copies must be a number' })
-    .int('copies must be a whole number').min(1, 'copies must be at least 1').max(5, 'copies cannot be more than 5'),
   deliveryMethod: z.enum(DELIVERY_METHODS, { errorMap: () => ({ message: `deliveryMethod must be one of: ${DELIVERY_METHODS.join(', ')}` }) }),
   reason: z.string({ required_error: 'reason is required' }).trim().min(5, 'reason must be at least 5 characters').max(200, 'reason must be at most 200 characters'),
 });

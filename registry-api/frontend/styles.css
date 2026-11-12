@@ -29,7 +29,7 @@ main { flex: 1; padding-top: 1.5rem; padding-bottom: 2.5rem; outline: none; }
 .bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; justify-content: space-between; padding-top: .75rem; padding-bottom: .75rem; }
 .brand { display: flex; align-items: center; gap: .7rem; color: #fff; text-decoration: none; font-weight: 700; line-height: 1.15; }
 .brand small { display: block; font-weight: 400; font-size: .78rem; opacity: .85; }
-.brand-mark { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 8px; background: #fff; color: var(--brand); font-size: 1.3rem; }
+.brand-logo { display: block; width: 2.65rem; height: 2.65rem; object-fit: contain; padding: .16rem; border-radius: 50%; background: #fff; }
 nav { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
 nav a, nav button.linklike {
   color: #fff; text-decoration: none; padding: .4rem .7rem; border-radius: 6px; font-size: .92rem;
@@ -102,12 +102,26 @@ td small { color: var(--muted); display: block; }
 
 .demo { margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--line); }
 .demo p { margin: 0 0 .4rem; color: var(--muted); font-size: .85rem; }
-.hero { background: linear-gradient(135deg, var(--brand), #0f7a63); color: #fff; border-radius: var(--radius); padding: 1.6rem 1.4rem; margin-bottom: 1.25rem; }
-.hero h1 { font-size: 1.7rem; }
-.hero p { margin: .3rem 0 1rem; opacity: .92; max-width: 56ch; }
+.hero {
+  position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center;
+  min-height: 390px; padding: clamp(1.5rem, 5vw, 3.5rem); margin-bottom: 1.25rem;
+  border-radius: var(--radius); color: #fff; background: #123c35 url("/images/FAST.jpeg") center 48% / cover no-repeat;
+}
+.hero::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(5,35,31,.91) 0%, rgba(5,35,31,.76) 48%, rgba(5,35,31,.34) 100%); }
+.hero-content { max-width: 680px; }
+.hero-logo { display: block; width: 68px; height: 68px; object-fit: contain; padding: .25rem; margin-bottom: 1.1rem; border-radius: 50%; background: rgba(255,255,255,.96); box-shadow: 0 4px 18px rgba(0,0,0,.2); }
+.hero .eyebrow { margin: 0 0 .4rem; color: #d7eee8; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.hero h1 { max-width: 18ch; font-size: clamp(2rem, 4vw, 3.15rem); line-height: 1.08; letter-spacing: -.025em; }
+.hero p:not(.eyebrow) { margin: .8rem 0 1.35rem; color: rgba(255,255,255,.91); max-width: 56ch; }
 .hero .btn { background: #fff; color: var(--brand); border-color: #fff; }
 .hero .btn.secondary { background: transparent; color: #fff; border-color: rgba(255,255,255,.7); }
+.hero .btn.secondary:hover { background: rgba(255,255,255,.14); }
 .reject-box { background: #fafbfc; }
 .reject-box td { padding: .8rem; }
 .reject-inline { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
 .reject-inline input { flex: 1 1 240px; }
+@media (max-width: 600px) {
+  .hero { min-height: 430px; background-position: 55% center; }
+  .hero::before { background: linear-gradient(90deg, rgba(5,35,31,.9), rgba(5,35,31,.62)); }
+  .hero-logo { width: 58px; height: 58px; }
+}

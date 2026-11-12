@@ -128,7 +128,6 @@ Protected endpoints require `Authorization: Bearer <token>`.
 
 - Supported document types: `official_transcript`, `certificate_copy`, `verification_letter`
 - Supported delivery methods: `pickup`, `email`, `courier`
-- Copies must be a whole number from 1 to 5.
 - A request reason must contain 5 to 200 characters.
 - Rejection requires a reason.
 - Only pending requests can be reviewed.

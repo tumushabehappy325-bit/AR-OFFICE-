@@ -35,7 +35,7 @@ const errorCode = (code) => `pm.test("Error code is ${code}", () => pm.expect(pm
 const success = (flag) => `pm.test("success is ${flag}", () => pm.expect(pm.response.json().success).to.eql(${flag}));`;
 const save = (variable, expr) => `pm.collectionVariables.set("${variable}", ${expr});`;
 
-const validRequest = { documentType: 'official_transcript', copies: 2, deliveryMethod: 'pickup', reason: 'Needed for a job application' };
+const validRequest = { documentType: 'official_transcript', deliveryMethod: 'pickup', reason: 'Needed for a job application' };
 
 const collection = {
   info: {
@@ -105,16 +105,12 @@ const collection = {
             'pm.test("Status is pending", () => pm.expect(pm.response.json().data.status).to.eql("pending"));',
             save('requestId', 'pm.response.json().data.id')],
         }),
-        item('Submit request with copies = 0 (invalid)', 'POST', '/api/requests', {
-          token: 'studentToken', body: { ...validRequest, copies: 0 },
-          tests: [status(400), errorCode('VALIDATION_ERROR')],
-        }),
         item('Submit request with unknown documentType (invalid)', 'POST', '/api/requests', {
           token: 'studentToken', body: { ...validRequest, documentType: 'passport' },
           tests: [status(400), errorCode('VALIDATION_ERROR')],
         }),
         item('Submit request with missing reason (invalid)', 'POST', '/api/requests', {
-          token: 'studentToken', body: { documentType: 'official_transcript', copies: 1, deliveryMethod: 'email' },
+          token: 'studentToken', body: { documentType: 'official_transcript', deliveryMethod: 'email' },
           tests: [status(400), errorCode('VALIDATION_ERROR')],
         }),
         item('Submit request without a token (invalid)', 'POST', '/api/requests', {
@@ -213,7 +209,7 @@ const collection = {
           tests: [status(200), 'pm.test("Status is ready with the serial attached", () => { const d = pm.response.json().data; pm.expect(d.status).to.eql("ready"); pm.expect(d.documentSerial).to.eql(pm.collectionVariables.get("serial")); });'],
         }),
         item('Second student submits a request', 'POST', '/api/requests', {
-          token: 'student2Token', body: { documentType: 'certificate_copy', copies: 1, deliveryMethod: 'email', reason: 'Replacement for lost certificate' },
+          token: 'student2Token', body: { documentType: 'certificate_copy', deliveryMethod: 'email', reason: 'Replacement for lost certificate' },
           description: 'Saves request2Id, used to demonstrate rejection.',
           tests: [status(201), save('request2Id', 'pm.response.json().data.id')],
         }),

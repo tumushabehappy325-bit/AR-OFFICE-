@@ -7,6 +7,7 @@
  */
 const { randomUUID } = require('crypto');
 const seed = require('./seed');
+const { generateSerial } = require('../utils/serial');
 
 const iso = (v) => (v ? new Date(v).toISOString() : null);
 
@@ -132,16 +133,56 @@ function createPgStore(pool) {
   }
 
   // ---------- Documents ----------
-  async function createDocument(d) {
-    const row = await one(
-      `INSERT INTO documents (id, serial, request_id, student_id, student_name, registration_number, program,
-         graduation_year, document_type, issued_by, issued_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-      [randomUUID(), d.serial, d.requestId, d.studentId, d.studentName, d.registrationNumber, d.program,
-        d.graduationYear, d.documentType, d.issuedBy, new Date().toISOString()]
-    );
-    return toDocument(row);
+  async function issueDocumentForRequest(requestId, issuedBy) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const request = (await client.query('SELECT * FROM requests WHERE id = $1 FOR UPDATE', [requestId])).rows[0];
+      if (!request) {
+        await client.query('ROLLBACK');
+        return { status: 'not_found' };
+      }
+      if (request.status === 'ready') {
+        await client.query('ROLLBACK');
+        return { status: 'already_issued', serial: request.document_serial };
+      }
+      if (request.status !== 'approved') {
+        await client.query('ROLLBACK');
+        return { status: 'not_approved', requestStatus: request.status };
+      }
+
+      const student = (await client.query('SELECT * FROM users WHERE id = $1', [request.student_id])).rows[0];
+      if (!student) {
+        await client.query('ROLLBACK');
+        return { status: 'student_not_found' };
+      }
+
+      let row;
+      while (!row) {
+        const serial = generateSerial();
+        row = (await client.query(
+          `INSERT INTO documents (id, serial, request_id, student_id, student_name, registration_number, program,
+             graduation_year, document_type, issued_by, issued_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+           ON CONFLICT (serial) DO NOTHING RETURNING *`,
+          [randomUUID(), serial, request.id, student.id, student.name, student.username, student.program,
+            student.graduation_year, request.document_type, issuedBy, new Date().toISOString()]
+        )).rows[0];
+      }
+      await client.query(
+        "UPDATE requests SET status = 'ready', document_serial = $1, updated_at = $2 WHERE id = $3",
+        [row.serial, new Date().toISOString(), request.id]
+      );
+      await client.query('COMMIT');
+      return { status: 'issued', document: toDocument(row) };
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
   }
+
   const findDocumentBySerial = async (serial) => toDocument(await one('SELECT * FROM documents WHERE serial = $1', [serial]));
   const listDocuments = async () => (await many('SELECT * FROM documents ORDER BY issued_at DESC')).map(toDocument);
 
@@ -149,7 +190,7 @@ function createPgStore(pool) {
     mode: 'postgres', init,
     findUserByUsername, findUserById,
     createRequest, findRequestById, listRequests, findOpenDuplicate, updateRequest,
-    createDocument, findDocumentBySerial, listDocuments,
+    issueDocumentForRequest, findDocumentBySerial, listDocuments,
   };
 }
 
