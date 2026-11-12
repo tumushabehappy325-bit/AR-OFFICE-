@@ -50,4 +50,35 @@ router.get('/', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET /api/documents/export  (staff, admin) - download issued documents as CSV
+const CSV_COLUMNS = [
+  ['Serial', (d) => d.serial],
+  ['Student', (d) => d.studentName],
+  ['Registration Number', (d) => d.registrationNumber],
+  ['Program', (d) => d.program],
+  ['Graduation Year', (d) => d.graduationYear],
+  ['Document Type', (d) => d.documentType],
+  ['Issued By', (d) => d.issuedBy],
+  ['Issued At', (d) => d.issuedAt],
+];
+
+const csvCell = (value) => {
+  const text = value == null ? '' : String(value);
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+};
+
+router.get('/export', async (req, res, next) => {
+  try {
+    const list = await store.listDocuments();
+    const lines = [
+      CSV_COLUMNS.map(([heading]) => csvCell(heading)).join(','),
+      ...list.map((doc) => CSV_COLUMNS.map(([, pick]) => csvCell(pick(doc))).join(',')),
+    ];
+    const filename = `registry-documents-${new Date().toISOString().slice(0, 10)}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send('\uFEFF' + lines.join('\r\n'));
+  } catch (err) { next(err); }
+});
+
 module.exports = router;
