@@ -61,7 +61,7 @@ input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible
   display: inline-block; padding: .6rem 1.1rem; border-radius: 8px; border: 1px solid var(--brand);
   background: var(--brand); color: #fff; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
 }
-.btn:hover { background: var(--brand-dark); }
+.btn:hover { background:  var(--brand-dark); }
 .btn:disabled { opacity: .6; cursor: wait; }
 .btn.secondary { background: #fff; color: var(--brand); }
 .btn.secondary:hover { background: var(--accent); }
