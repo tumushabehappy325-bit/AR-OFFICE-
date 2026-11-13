@@ -5,7 +5,7 @@
   const app = document.getElementById('app');
   const nav = document.getElementById('nav');
 
-  // ---------- Session ----------
+  // Keep the signed-in user and token for this browser tab.
   const store = {
     get(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } },
     set(key, val) { try { sessionStorage.setItem(key, val); } catch (e) { /* ignore */ } },
@@ -25,7 +25,7 @@
     store.del('token'); store.del('user');
   }
 
-  // ---------- Helpers ----------
+  // Labels and formatting helpers used by the page templates.
   const DOC_LABELS = {
     official_transcript: 'Official transcript',
     certificate_copy: 'Certificate copy',
@@ -58,6 +58,7 @@
     const headers = {};
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (auth && state.token) headers.Authorization = 'Bearer ' + state.token;
+    // Send same-origin requests so the frontend and API share the deployed host.
     let res;
     try {
       res = await fetch('/api' + path, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
@@ -83,7 +84,7 @@
     return json;
   }
 
-  // ---------- Navigation ----------
+  // Rebuild navigation after route changes or login state changes.
   function renderNav(route) {
     const link = (href, label, key) =>
       `<a href="${href}" class="${route === key ? 'active' : ''}"${route === key ? ' aria-current="page"' : ''}>${label}</a>`;
@@ -101,15 +102,19 @@
     if (logout) logout.addEventListener('click', () => { clearSession(); location.hash = '#/'; render(); });
   }
 
-  // ---------- Views ----------
+  // Each view replaces the main content and wires up its own interactions.
   function viewHome() {
     app.innerHTML = `
       <section class="hero">
-        <h1>Transcripts and document verification</h1>
-        <p>Request your official transcript online and track it from submission to collection. Employers can confirm that a document is genuine in seconds.</p>
-        <div class="actions">
-          <a class="btn" href="#/login">Log in to request</a>
-          <a class="btn secondary" href="#/verify">Verify a document</a>
+        <div class="hero-content">
+          <img class="hero-logo" src="/images/Logo.png" alt="Mbarara University of Science and Technology crest">
+          <p class="eyebrow">Mbarara University of Science and Technology</p>
+          <h1>Trusted academic records, verified with confidence</h1>
+          <p>Request your official transcript online, follow its progress, and let employers confirm an issued document using its serial number.</p>
+          <div class="actions">
+            <a class="btn" href="#/login">Log in to request</a>
+            <a class="btn secondary" href="#/verify">Verify a document</a>
+          </div>
         </div>
       </section>
       <div class="grid-2">
@@ -139,22 +144,7 @@
           <div class="form-actions"><button class="btn" type="submit">Log in</button></div>
           <div id="loginMsg"></div>
         </form>
-        <div class="demo">
-          <p>Demo accounts (click to fill in):</p>
-          <div class="actions">
-            <button type="button" class="btn secondary small" data-fill="2021/BSE/045|Student@123">Student</button>
-            <button type="button" class="btn secondary small" data-fill="2021/BIT/012|Student@123">Student 2</button>
-            <button type="button" class="btn secondary small" data-fill="officer@must.ac.ug|Staff@123">Registry officer</button>
-            <button type="button" class="btn secondary small" data-fill="registrar@must.ac.ug|Admin@123">Registrar</button>
-          </div>
-        </div>
       </section>`;
-
-    app.querySelectorAll('[data-fill]').forEach((b) => b.addEventListener('click', () => {
-      const [u, p] = b.dataset.fill.split('|');
-      document.getElementById('username').value = u;
-      document.getElementById('password').value = p;
-    }));
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -190,9 +180,6 @@
             <select id="documentType" name="documentType">
               ${Object.entries(DOC_LABELS).map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
             </select>
-            <label for="copies">Number of copies</label>
-            <input id="copies" name="copies" type="number" min="1" max="5" value="1">
-            <div class="hint">Between 1 and 5.</div>
             <label for="deliveryMethod">Delivery</label>
             <select id="deliveryMethod" name="deliveryMethod">
               ${Object.entries(DELIVERY_LABELS).map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
@@ -209,6 +196,7 @@
         </section>
       </div>`;
 
+    // Refresh the signed-in student's request history from the API.
     async function loadList() {
       const box = document.getElementById('reqList');
       try {
@@ -219,7 +207,7 @@
           <tbody>${res.data.map((r) => `
             <tr>
               <td>${esc(DOC_LABELS[r.documentType] || r.documentType)}
-                <small>${esc(r.copies)} copy(ies), ${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
+                <small>${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
               <td>${badge(r.status)}</td>
               <td>${r.status === 'rejected' ? `Reason: ${esc(r.rejectionReason)}`
                 : r.status === 'ready' ? `Serial: <a class="serial" href="#/verify/${esc(r.documentSerial)}">${esc(r.documentSerial)}</a>`
@@ -240,7 +228,6 @@
           method: 'POST',
           body: {
             documentType: e.target.elements.documentType.value,
-            copies: e.target.elements.copies.value === '' ? undefined : Number(e.target.elements.copies.value),
             deliveryMethod: e.target.elements.deliveryMethod.value,
             reason: e.target.elements.reason.value,
           },
@@ -268,7 +255,7 @@
           <div>
             <label for="statusFilter" class="hint" style="display:inline;margin-right:.4rem">Show</label>
             <select id="statusFilter" style="width:auto;display:inline-block">
-              <option value="">All</option><option value="pending" selected>Pending</option>
+              <option value="" selected>All</option><option value="pending">Pending</option>
               <option value="approved">Approved</option><option value="ready">Ready</option><option value="rejected">Rejected</option>
             </select>
           </div>
@@ -284,6 +271,7 @@
     const msg = document.getElementById('staffMsg');
     const filter = document.getElementById('statusFilter');
 
+    // Apply the selected status filter when loading the registry queue.
     async function loadRequests() {
       const box = document.getElementById('staffList');
       try {
@@ -296,7 +284,7 @@
             <tr>
               <td>${esc(r.studentName)}<small>${esc(r.registrationNumber)}</small></td>
               <td>${esc(DOC_LABELS[r.documentType] || r.documentType)}
-                <small>${esc(r.copies)} copy(ies), ${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
+                <small>${esc(DELIVERY_LABELS[r.deliveryMethod] || r.deliveryMethod)}, ${esc(fmtDate(r.createdAt))}</small></td>
               <td>${esc(r.reason)}</td>
               <td>${badge(r.status)}${r.status === 'rejected' ? `<small>${esc(r.rejectionReason)}</small>` : ''}</td>
               <td>${r.status === 'pending'
@@ -321,6 +309,7 @@
       } catch (err) { box.innerHTML = errorBox(err); }
     }
 
+    // Show issued serials so staff can copy or open the public verification page.
     async function loadDocuments() {
       const box = document.getElementById('docList');
       try {
@@ -357,6 +346,7 @@
       try {
         if (act === 'approve') {
           await api(`/requests/${id}/status`, { method: 'PATCH', body: { status: 'approved' } });
+          filter.value = 'approved';
           msg.innerHTML = successBox('Request approved. You can now issue the document.');
         } else if (act === 'reject-confirm') {
           const reason = box.querySelector('input').value;
@@ -392,6 +382,7 @@
 
     const out = document.getElementById('verifyResult');
 
+    // Verification is public; the API returns only the details needed to confirm a record.
     async function check(serial) {
       out.innerHTML = '<p class="empty">Checking...</p>';
       try {
@@ -428,7 +419,7 @@
     if (prefill) check(prefill);
   }
 
-  // ---------- Router ----------
+  // Use the URL hash for lightweight navigation without a frontend framework.
   function render() {
     const hash = location.hash || '#/';
     const parts = hash.replace(/^#\/?/, '').split('/');

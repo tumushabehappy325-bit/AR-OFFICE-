@@ -15,9 +15,16 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
   try {
     const { username, password } = req.body;
     const user = await store.findUserByUsername(username);
-    const ok = user && (await bcrypt.compare(password, user.passwordHash));
+    // Older/manual Neon rows may contain the original password in password_hash.
+    // Keep those accounts usable while preferring bcrypt for all new passwords.
+    const storedPassword = user?.passwordHash;
+    const isBcryptHash = typeof storedPassword === 'string' && /^\$2[aby]\$\d{2}\$/.test(storedPassword);
+    const ok = user && (isBcryptHash
+      ? await bcrypt.compare(password, storedPassword)
+      : password === storedPassword);
     if (!ok) throw new HttpError(401, 'INVALID_CREDENTIALS', 'Incorrect username or password.');
 
+    // Store only the user id and role in the signed token; load current user data per request.
     const token = jwt.sign({ sub: user.id, role: user.role }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
     res.json({
       success: true,

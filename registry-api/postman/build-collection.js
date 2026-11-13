@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// Build one reusable request definition with optional auth, body, query, and checks.
 const item = (name, method, urlPath, { token, body, tests = [], description = '', query } = {}) => {
   const header = [];
   if (body !== undefined) header.push({ key: 'Content-Type', value: 'application/json' });
@@ -35,15 +36,16 @@ const errorCode = (code) => `pm.test("Error code is ${code}", () => pm.expect(pm
 const success = (flag) => `pm.test("success is ${flag}", () => pm.expect(pm.response.json().success).to.eql(${flag}));`;
 const save = (variable, expr) => `pm.collectionVariables.set("${variable}", ${expr});`;
 
-const validRequest = { documentType: 'official_transcript', copies: 2, deliveryMethod: 'pickup', reason: 'Needed for a job application' };
+const validRequest = { documentType: 'official_transcript', deliveryMethod: 'pickup', reason: 'Needed for a job application' };
 
+// Keep the collection in workflow order so the runner can reuse saved tokens and ids.
 const collection = {
   info: {
     name: 'Registry API: Transcript Request and Document Verification',
     description:
       'SWE2106 Etivity 5. Test collection for the MUST Academic Registrar transcript request and document verification API.\n\n' +
       'HOW TO USE\n1. Start the server (npm start).\n2. Run the folders in order (or use the Collection Runner). Tokens and ids are saved automatically as collection variables.\n3. Change the baseUrl variable if the API is deployed.\n\n' +
-      'SAMPLE ACCOUNTS\nStudent: 2021/BSE/045 / Student@123\nStudent 2: 2021/BIT/012 / Student@123\nStaff: officer@must.ac.ug / Staff@123\nAdmin: registrar@must.ac.ug / Admin@123',
+      'SAMPLE ACCOUNTS\nStudent: 2021/BSE/045 / Student@123\nStudent 2: 2021/BIT/012 / bit2024\nStaff: officer@must.ac.ug / Staff@123\nAdmin: registrar@must.ac.ug / Admin@123',
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
   },
   variable: [
@@ -73,7 +75,7 @@ const collection = {
             save('studentToken', 'pm.response.json().data.token')],
         }),
         item('Login second student (valid)', 'POST', '/api/auth/login', {
-          body: { username: '2021/BIT/012', password: 'Student@123' },
+          body: { username: '2021/BIT/012', password: 'bit2024' },
           description: 'Used later to prove one student cannot see another student\'s request. Saves student2Token.',
           tests: [status(200), save('student2Token', 'pm.response.json().data.token')],
         }),
@@ -105,16 +107,12 @@ const collection = {
             'pm.test("Status is pending", () => pm.expect(pm.response.json().data.status).to.eql("pending"));',
             save('requestId', 'pm.response.json().data.id')],
         }),
-        item('Submit request with copies = 0 (invalid)', 'POST', '/api/requests', {
-          token: 'studentToken', body: { ...validRequest, copies: 0 },
-          tests: [status(400), errorCode('VALIDATION_ERROR')],
-        }),
         item('Submit request with unknown documentType (invalid)', 'POST', '/api/requests', {
           token: 'studentToken', body: { ...validRequest, documentType: 'passport' },
           tests: [status(400), errorCode('VALIDATION_ERROR')],
         }),
         item('Submit request with missing reason (invalid)', 'POST', '/api/requests', {
-          token: 'studentToken', body: { documentType: 'official_transcript', copies: 1, deliveryMethod: 'email' },
+          token: 'studentToken', body: { documentType: 'official_transcript', deliveryMethod: 'email' },
           tests: [status(400), errorCode('VALIDATION_ERROR')],
         }),
         item('Submit request without a token (invalid)', 'POST', '/api/requests', {
@@ -213,7 +211,7 @@ const collection = {
           tests: [status(200), 'pm.test("Status is ready with the serial attached", () => { const d = pm.response.json().data; pm.expect(d.status).to.eql("ready"); pm.expect(d.documentSerial).to.eql(pm.collectionVariables.get("serial")); });'],
         }),
         item('Second student submits a request', 'POST', '/api/requests', {
-          token: 'student2Token', body: { documentType: 'certificate_copy', copies: 1, deliveryMethod: 'email', reason: 'Replacement for lost certificate' },
+          token: 'student2Token', body: { documentType: 'certificate_copy', deliveryMethod: 'email', reason: 'Replacement for lost certificate' },
           description: 'Saves request2Id, used to demonstrate rejection.',
           tests: [status(201), save('request2Id', 'pm.response.json().data.id')],
         }),
@@ -254,5 +252,6 @@ const collection = {
 };
 
 const out = path.join(__dirname, 'registry-api.postman_collection.json');
+// Regenerate the checked-in collection from this source file after editing requests.
 fs.writeFileSync(out, JSON.stringify(collection, null, 2));
 console.log('Wrote', out);

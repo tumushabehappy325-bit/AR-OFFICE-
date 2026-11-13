@@ -2,6 +2,7 @@ const app = require('./app');
 const config = require('./config');
 const store = require('./data/store');
 
+// Prepare tables and seed data before accepting requests.
 store.init()
   .then(() => {
     app.listen(config.port, () => {

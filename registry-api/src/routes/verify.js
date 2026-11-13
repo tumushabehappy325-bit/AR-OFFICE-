@@ -9,6 +9,7 @@ const router = express.Router();
 // Employers and other institutions use this to check a document is genuine.
 router.get('/:serial', validate(serialParamSchema, 'params'), async (req, res, next) => {
   try {
+    // Normalize and validate the serial before querying the document record.
     const doc = await store.findDocumentBySerial(req.params.serial);
     if (!doc) {
       return res.status(404).json({

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Registry API: Transcript Request and Document Verification",
-    "description": "SWE2106 Etivity 5. Test collection for the MUST Academic Registrar transcript request and document verification API.\n\nHOW TO USE\n1. Start the server (npm start).\n2. Run the folders in order (or use the Collection Runner). Tokens and ids are saved automatically as collection variables.\n3. Change the baseUrl variable if the API is deployed.\n\nSAMPLE ACCOUNTS\nStudent: 2021/BSE/045 / Student@123\nStudent 2: 2021/BIT/012 / Student@123\nStaff: officer@must.ac.ug / Staff@123\nAdmin: registrar@must.ac.ug / Admin@123",
+    "description": "SWE2106 Etivity 5. Test collection for the MUST Academic Registrar transcript request and document verification API.\n\nHOW TO USE\n1. Start the server (npm start).\n2. Run the folders in order (or use the Collection Runner). Tokens and ids are saved automatically as collection variables.\n3. Change the baseUrl variable if the API is deployed.\n\nSAMPLE ACCOUNTS\nStudent: 2021/BSE/045 / Student@123\nStudent 2: 2021/BIT/012 / bit2024\nStaff: officer@must.ac.ug / Staff@123\nAdmin: registrar@must.ac.ug / Admin@123",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -132,7 +132,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"2021/BIT/012\",\n  \"password\": \"Student@123\"\n}",
+              "raw": "{\n  \"username\": \"2021/BIT/012\",\n  \"password\": \"bit2024\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -324,7 +324,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"copies\": 2,\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
+              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -359,54 +359,6 @@
           ]
         },
         {
-          "name": "Submit request with copies = 0 (invalid)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{studentToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"copies\": 0,\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/requests",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "requests"
-              ]
-            },
-            "description": ""
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status code is 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Error code is VALIDATION_ERROR\", () => pm.expect(pm.response.json().error.code).to.eql(\"VALIDATION_ERROR\"));"
-                ]
-              }
-            }
-          ]
-        },
-        {
           "name": "Submit request with unknown documentType (invalid)",
           "request": {
             "method": "POST",
@@ -422,7 +374,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"passport\",\n  \"copies\": 2,\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
+              "raw": "{\n  \"documentType\": \"passport\",\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -470,7 +422,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"copies\": 1,\n  \"deliveryMethod\": \"email\"\n}",
+              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"deliveryMethod\": \"email\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -514,7 +466,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"copies\": 2,\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
+              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -562,7 +514,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"copies\": 2,\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
+              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -610,7 +562,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"copies\": 2,\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
+              "raw": "{\n  \"documentType\": \"official_transcript\",\n  \"deliveryMethod\": \"pickup\",\n  \"reason\": \"Needed for a job application\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1425,7 +1377,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documentType\": \"certificate_copy\",\n  \"copies\": 1,\n  \"deliveryMethod\": \"email\",\n  \"reason\": \"Replacement for lost certificate\"\n}",
+              "raw": "{\n  \"documentType\": \"certificate_copy\",\n  \"deliveryMethod\": \"email\",\n  \"reason\": \"Replacement for lost certificate\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
