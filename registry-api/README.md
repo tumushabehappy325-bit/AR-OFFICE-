@@ -12,6 +12,7 @@ The system supports transcript and other academic-document requests. Students su
 | Nuwahereza Clinton | 2025/BSE/244/PS |
 | Murungi Alex Mugabe | 2025/BSE/114/PS|
 |Najuna  Neria        |2025/BSE/124/PS  |
+|Obel Fedrick |2025/BSE/139/PS|
 ## Main functions
 
 - Student sign-in and request submission
