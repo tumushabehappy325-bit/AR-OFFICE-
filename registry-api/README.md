@@ -1,4 +1,4 @@
-# MUST Registry Document Request and Verification System.
+# MUST Registry API: Transcript Request and Document Verification System.
 
 Class project for SWE2106 Internet Technologies and Web Design, Etivity 5.
 
