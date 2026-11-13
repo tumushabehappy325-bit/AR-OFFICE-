@@ -10,7 +10,7 @@ The system supports transcript and other academic-document requests. Students su
 |---|---|
 | Tumushabe Happy | 2025/BSE/005 |
 | Murungi Alex Mugabe | TBD |
-
+| Obel Fedrick  | 2025/BSE/139/PS |
 ## Main functions
 
 - Student sign-in and request submission
