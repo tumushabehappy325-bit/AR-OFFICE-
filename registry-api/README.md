@@ -10,7 +10,7 @@ The system supports transcript and other academic-document requests. Students su
 |---|---|
 | Tumushabe Happy | 2025/BSE/005 |
 | Nuwahereza Clinton | 2025/BSE/244/PS |
-| Murungi Alex Mugabe | TBD |
+| Murungi Alex Mugabe | 2025/BSE/114/PS|
 
 ## Main functions
 
