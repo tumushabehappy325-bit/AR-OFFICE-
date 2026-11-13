@@ -1,4 +1,4 @@
-# MUST Registry Document Request and Verification System
+# MUST Registry Document Request and Verification System.
 
 Class project for SWE2106 Internet Technologies and Web Design, Etivity 5.
 
@@ -9,6 +9,7 @@ The system supports transcript and other academic-document requests. Students su
 | Full name | Registration number |
 |---|---|
 | Tumushabe Happy | 2025/BSE/005 |
+| Nuwahereza Clinton | 2025/BSE/244/PS |
 | Murungi Alex Mugabe | TBD |
 
 ## Main functions
