@@ -1,2 +1,2 @@
 Name: KARAHUKAYO CHRISPUS 
-Reg Number: 2025/BSE/081/PS
+Registration Number: 2025/BSE/081/PS
